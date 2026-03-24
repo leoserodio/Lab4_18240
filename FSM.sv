@@ -1,9 +1,10 @@
 module FSM
   (input logic clock, reset_L,
   input logic startGame, enough,
-  master_ready, gradeIt, 
+  master_ready, gradeIt, correct, 
+  more_rounds, max_rounds,
   output logic round_clear, cl_all, inc_game, 
-  adding, cl_z, round_en);
+  adding, cl_z, round_en, gameWon);
 
   enum logic [2:0] {INIT, CHOOSE_PATTERN, GRADE, 
                     ROUND_DONE, WIN, LOSE} current_state, next_state;
@@ -38,7 +39,48 @@ module FSM
         round_en = (gradeIt) ? 1 : 0;
       end
       ROUND_DONE: begin
+        //next state logic
+        if(~correct & more_rounds)
+          next_state = GRADE;
+        else if(~correct & max_rounds)
+          next_state = LOSE;
+        else
+          next_state = WIN;
+        
+        //output logic 
+        if(~correct & max_rounds)
+          gameWon = 0;
+        else if(correct)
+          gameWon = 1;
       end 
+      LOSE: begin
+        //next state logic
+        if(~startGame) next_state = LOSE;
+        else if(startGame & ~enough) next_state = INIT;
+        else next_state = CHOOSE_PATTERN;
+
+        //output logic
+        if(~startGame) gameWon = 0;
+        else if(startGame & enough)
+          adding = 0;
+          cl_all = 1;
+          inc_game = 1;
+      end
+      WIN: begin
+        //next state logic
+        if(~startGame) next_state = WIN;
+        else if(startGame & ~enough) next_state = INIT;
+        else next_state = CHOOSE_PATTERN;
+
+        //output logic
+        if(~startGame) gameWon = 1;
+        else if(startGame & enough)
+          adding = 0;
+          cl_all = 1;
+          inc_game = 1;
+
+
+      end
       
     endcase
 

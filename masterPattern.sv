@@ -40,7 +40,7 @@ assign mp1_en = select[1] & check1 & LoadShapeNow;
 assign mp0_en = select[0] & check0 & LoadShapeNow;
 
 //concatenate masterPattern
-assign masterPattern = {mp3, mp2, mp1, m0};
+assign masterPattern = {mp3, mp2, mp1, mp0};
 
 //all shapes are loaded
 assign master_ready = ~(check3 | check2 | check1 | check0); //check this logic again
