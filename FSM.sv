@@ -78,8 +78,11 @@ module FSM
           adding = 0;
           cl_all = 1;
           inc_game = 1;
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 100ed27 (chip interface)
       end
       
     endcase

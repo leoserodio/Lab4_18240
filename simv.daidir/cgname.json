@@ -5,11 +5,19 @@
         "module",
         1
     ],
+<<<<<<< HEAD
     "Comparator": [
         "Comparator",
         "ZPSNi",
         "module",
         17
+=======
+    "tb_pattern": [
+        "tb_pattern",
+        "w5F0Y",
+        "module",
+        15
+>>>>>>> 100ed27 (chip interface)
     ],
     "MagComp": [
         "MagComp",
@@ -41,24 +49,30 @@
         "module",
         6
     ],
+<<<<<<< HEAD
     "Decoder": [
         "Decoder",
         "t8TcA",
         "module",
         18
     ],
+=======
+>>>>>>> 100ed27 (chip interface)
     "BarrelShifter": [
         "BarrelShifter",
         "p7fYB",
         "module",
         7
     ],
+<<<<<<< HEAD
     "Register": [
         "Register",
         "kynWL",
         "module",
         19
     ],
+=======
+>>>>>>> 100ed27 (chip interface)
     "Counter": [
         "Counter",
         "Nsh6f",
@@ -101,12 +115,15 @@
         "module",
         14
     ],
+<<<<<<< HEAD
     "FSM": [
         "FSM",
         "eP8Yb",
         "module",
         20
     ],
+=======
+>>>>>>> 100ed27 (chip interface)
     "...MASTER...": [
         "SIM",
         "amcQw",

@@ -9,7 +9,11 @@ UUM=FALSE
 KDB=FALSE
 USE_NOVAS_HOME=FALSE
 COSIM=FALSE
+<<<<<<< HEAD
 TOP=Comparator MagComp Adder Subtracter Multiplexer Mux2to1 Decoder BarrelShifter Register Counter Synchronizer ShiftRegisterPIPO ShiftRegisterSIPO BarrelShiftRegister BusDriver Memory FSM 
+=======
+TOP=tb_pattern MagComp Adder Subtracter Multiplexer Mux2to1 BarrelShifter Counter Synchronizer ShiftRegisterPIPO ShiftRegisterSIPO BarrelShiftRegister BusDriver Memory 
+>>>>>>> 100ed27 (chip interface)
 
 [Value]
 WREALX=ffff534e50535f58

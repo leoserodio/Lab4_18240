@@ -28,15 +28,24 @@
 -picarchive
 -sverilog
 /afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-2022.06/linux64/bin/vcs1
+<<<<<<< HEAD
 library.sv
 FSM.sv
+=======
+masterPattern.sv
+library.sv
+>>>>>>> 100ed27 (chip interface)
 59
 which_declare=declare -f
 XIL_HOME=/afs/ece/support/xilinx/xilinx.release/Vivado-2024.2/Vivado/2024.2
 XILINX_VIVADO=/afs/ece.cmu.edu/support/xilinx/xilinx.release/Vivado-2024.2/Vivado/2024.2
 XILINX_VITIS=/afs/ece.cmu.edu/support/xilinx/xilinx.release/Vivado-2024.2/Vitis/2024.2
 XILINX_HLS=/afs/ece.cmu.edu/support/xilinx/xilinx.release/Vivado-2024.2/Vitis/2024.2
+<<<<<<< HEAD
 XDG_SESSION_ID=3278
+=======
+XDG_SESSION_ID=3333
+>>>>>>> 100ed27 (chip interface)
 XDG_RUNTIME_DIR=/run/user/2714437
 XDG_DATA_DIRS=/afs/andrew.cmu.edu/usr22/almaz/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
 VMR_MODE_FLAG=32
@@ -56,9 +65,15 @@ TOOL_HOME=/afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-
 S_COLORS=auto
 SYN_DIR=/syn/T-2022.03-SP2
 SYNOPSYS_HOME=/afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation
+<<<<<<< HEAD
 SSH_TTY=/dev/pts/0
 SSH_CONNECTION=172.26.17.51 52296 172.19.138.15 22
 SSH_CLIENT=172.26.17.51 52296 22
+=======
+SSH_TTY=/dev/pts/15
+SSH_CONNECTION=172.26.17.51 54424 172.19.138.15 22
+SSH_CLIENT=172.26.17.51 54424 22
+>>>>>>> 100ed27 (chip interface)
 SSH_ASKPASS=/usr/libexec/openssh/gnome-ssh-askpass
 SNPS_VCS_CLANG_PATH=/afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-2022.06/linux64/clang
 SNPS_INTERNAL_VCS_LINUX_OS=linux
@@ -83,7 +98,11 @@ HISTCONTROL=ignoredups
 GDK_BACKEND=x11
 FASTX_INSTALL_DISABLE=fastx4,sshd,rlm
 DC_HOME=/syn/T-2022.03-SP2/
+<<<<<<< HEAD
 DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-jTLQfypffE,guid=aebcfb3a5d4db3101ba1efaa69c2e597
+=======
+DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-Q3ji6idzeh,guid=934c7612a531ec74d4419d2369c34bb1
+>>>>>>> 100ed27 (chip interface)
 BASH_FUNC_which%%=() {  ( alias;_ eval ${which_declare} ) | /usr/bin/which --tty-only --read-alias --read-functions --show-tilde --show-dot $@_}
 BASH_FUNC_switchml%%=() {  typeset swfound=1;_ if [ "${MODULES_USE_COMPAT_VERSION:-0}" = '1' ]; then_ typeset swname='main';_ if [ -e /usr/share/Modules/libexec/modulecmd.tcl ]; then_ typeset swfound=0;_ unset MODULES_USE_COMPAT_VERSION;_ fi;_ else_ typeset swname='compatibility';_ if [ -e /usr/share/Modules/libexec/modulecmd-compat ]; then_ typeset swfound=0;_ MODULES_USE_COMPAT_VERSION=1;_ export MODULES_USE_COMPAT_VERSION;_ fi;_ fi;_ if [ $swfound -eq 0 ]; then_ echo "Switching to Modules $swname version";_ source /usr/share/Modules/init/bash;_ else_ echo "Cannot switch to Modules $swname version, command not found";_ return 1;_ fi_}
 BASH_FUNC_scl%%=() {  if [ "$1" = "load" -o "$1" = "unload" ]; then_ eval "module $@";_ else_ /usr/bin/scl "$@";_ fi_}
@@ -93,13 +112,22 @@ BASH_FUNC__module_raw%%=() {  unset _mlshdbg;_ if [ "${MODULES_SILENT_SHELL_DEBU
 0
 0
 3
+<<<<<<< HEAD
 1774394709 FSM.sv
 1774394028 library.sv
+=======
+1774394028 library.sv
+1774407725 masterPattern.sv
+>>>>>>> 100ed27 (chip interface)
 1654052745 /afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-2022.06/linux64/lib/vcsdp.tab
 4
 1654054205 /afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-2022.06/linux64/lib/libvirsim.so
 1654053585 /afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-2022.06/linux64/lib/liberrorinf.so
 1654053489 /afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-2022.06/linux64/lib/libsnpsmalloc.so
 1654053565 /afs/ece.cmu.edu/support/synopsys/synopsys.release/T-Foundation/vcs/T-2022.06/linux64/lib/libvfs.so
+<<<<<<< HEAD
 1774394740 simv.daidir
+=======
+1774407738 simv.daidir
+>>>>>>> 100ed27 (chip interface)
 -1 partitionlib
