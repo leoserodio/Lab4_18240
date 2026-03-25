@@ -31,7 +31,7 @@ module ChipInterface (
     // - 2Declare connecting wires/signals to/from your game
     // - Use those wires/signals to connect to the MastermindVGA and
     //   EightSevenSegmentDisplays modules below
-        logic [11:0] guess, masterPattern;
+    logic [11:0] guess, masterPattern;
     logic [3:0]  znarly, zood, credit, roundNumber, numGames;
 
     logic        master_ready;
