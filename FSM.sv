@@ -1,5 +1,5 @@
 module FSM
-  (input logic clock, reset_L,
+  (input logic clock, reset,
   input logic startGame, enough,
   master_ready, gradeIt, correct, 
   more_rounds, max_rounds,
@@ -10,14 +10,21 @@ module FSM
                     ROUND_DONE, WIN, LOSE} current_state, next_state;
 
 
-  always_ff @(posedge clock, negedge reset_L)
-    if(~reset_L)
+  always_ff @(posedge clock, posedge reset)
+    if(reset)
       current_state <= INIT;
     else
       current_state <= next_state;
 
-
   always_comb begin
+    next_state  = current_state;
+    round_clear = 0;
+    cl_all      = 0;
+    inc_game    = 0;
+    adding      = 0;
+    cl_z        = 0;
+    round_en    = 0;
+    gameWon     = 0;
     case(current_state)
       INIT: begin
         //state
@@ -31,11 +38,10 @@ module FSM
       end 
       CHOOSE_PATTERN: begin
         next_state = (master_ready) ? GRADE : CHOOSE_PATTERN;
-        cl_all = (~master_ready) ? 0 : 1;
       end
       GRADE: begin
         next_state = (gradeIt) ? ROUND_DONE : GRADE;
-        cl_z = (gradeIt) ? 0 : 1;
+        //cl_z = (gradeIt) ? 0 : 1;
         round_en = (gradeIt) ? 1 : 0;
       end
       ROUND_DONE: begin
@@ -48,46 +54,41 @@ module FSM
           next_state = WIN;
         
         //output logic 
+          cl_z = 0;
         if(~correct & max_rounds)
           gameWon = 0;
         else if(correct)
           gameWon = 1;
       end 
-      LOSE: begin
-        //next state logic
+            LOSE: begin
         if(~startGame) next_state = LOSE;
         else if(startGame & ~enough) next_state = INIT;
         else next_state = CHOOSE_PATTERN;
 
-        //output logic
-        if(~startGame) gameWon = 0;
-        else if(startGame & enough)
+        if(~startGame)
+          gameWon = 0;
+        else if(startGame & enough) begin
           adding = 0;
           cl_all = 1;
           inc_game = 1;
+        end
       end
+
       WIN: begin
-        //next state logic
         if(~startGame) next_state = WIN;
         else if(startGame & ~enough) next_state = INIT;
         else next_state = CHOOSE_PATTERN;
 
-        //output logic
-        if(~startGame) gameWon = 1;
-        else if(startGame & enough)
+        if(~startGame)
+          gameWon = 1;
+        else if(startGame & enough) begin
           adding = 0;
           cl_all = 1;
           inc_game = 1;
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 100ed27 (chip interface)
+        end
       end
-      
     endcase
-
   end
 
-
-endmodule: FSM
+endmodule : FSM
+    
