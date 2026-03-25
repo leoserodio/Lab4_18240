@@ -6,16 +6,20 @@ module coinFSM
      output logic       adding,
      input  logic [1:0] cv,
      input  logic       coinInserted,
-     input  logic       clock, reset_L);
+     input  logic       clock, reset);
 
-    enum logic [2:0] {START, ONE, TWO, THREE, PERF_DROP, DROP_ONE, DROP_TWO, DROP_THREE} currState, nextState;
+    enum logic [3:0] {START, ONE, TWO, THREE, PERF_DROP, DROP_ONE, DROP_TWO, DROP_THREE} currState, nextState, prevState;
 
-    always_ff @(posedge clock, negedge reset_L) begin
-        if (~reset_L)
+    always_ff @(posedge clock, posedge reset) begin
+        if (reset) begin
             currState <= START;
-        else
+            prevState <= START;
+        end
+        else begin
+            prevState <= currState;
             currState <= nextState;
     end
+end
 
     always_comb begin
         nextState = currState;
@@ -85,37 +89,59 @@ module coinFSM
     end
 
     always_comb begin
-        credit   = 4'd0;
-        inc_game = 1'b0;
-        adding   = 1'b1;
-        unique case (currState)
-            START:      begin credit = 4'd0; inc_game = 1'b0; end
-            ONE:        begin credit = 4'd1; inc_game = 1'b0; end
-            TWO:        begin credit = 4'd2; inc_game = 1'b0; end
-            THREE:      begin credit = 4'd3; inc_game = 1'b0; end
-            PERF_DROP:  begin credit = 4'd0; inc_game = 1'b1; end
-            DROP_ONE:   begin credit = 4'd1; inc_game = 1'b1; end
-            DROP_TWO:   begin credit = 4'd2; inc_game = 1'b1; end
-            DROP_THREE: begin credit = 4'd3; inc_game = 1'b1; end
-            //default:    begin credit = 4'd0; inc_game = 1'b0; adding = 1'b1; end
-        endcase
-    end
+    credit   = 4'd0;
+    inc_game = 1'b0;
+    adding   = 1'b1;
+
+    case (currState)
+        START:      credit = 4'd0;
+        ONE:        credit = 4'd1;
+        TWO:        credit = 4'd2;
+        THREE:      credit = 4'd3;
+
+        PERF_DROP: begin
+            credit = 4'd0;
+            if (prevState != PERF_DROP) inc_game = 1'b1;
+        end
+
+        DROP_ONE: begin
+            credit = 4'd1;
+            if (prevState != DROP_ONE) inc_game = 1'b1;
+        end
+
+        DROP_TWO: begin
+            credit = 4'd2;
+            if (prevState != DROP_TWO) inc_game = 1'b1;
+        end
+
+        DROP_THREE: begin
+            credit = 4'd3;
+            if (prevState != DROP_THREE) inc_game = 1'b1;
+        end
+
+        default: begin
+            credit   = 4'd0;
+            inc_game = 1'b0;
+            adding   = 1'b1;
+        end
+    endcase
+end
 
 endmodule : coinFSM
 
-
+/*
 module coinFSM_test();
     logic [3:0] credit;
     logic       inc_game;
     logic [1:0] coin;
-    logic       clock, reset_L;
+    logic       clock, reset;
     logic       adding;
     logic       coinInserted;
 
     integer i;
 
     coinFSM dut(.credit, .inc_game, .adding, .coinInserted,
-                .clock, .reset_L, .cv(coin));
+                .clock, .reset, .cv(coin));
 
     initial begin
         clock = 0;
@@ -129,7 +155,7 @@ module coinFSM_test();
         // initialize
         coin         <= 2'b00;
         coinInserted <= 1'b0;
-        reset_L      <= 1'b0;
+        reset      <= 1'b1;
 
         // hold reset for a few cycles
         @(posedge clock);
@@ -138,7 +164,7 @@ module coinFSM_test();
 
         // release reset
         @(posedge clock);
-        reset_L <= 1'b1;
+        reset <= 1'b0;
 
         // insert 4 circles one at a time -> should drop after 4th
         for (i = 0; i < 4; i = i + 1) begin
@@ -209,9 +235,9 @@ module coinFSM_test();
         coinInserted <= 1'b0;
         @(posedge clock);
 
-        reset_L <= 1'b0;
+        reset <= 1'b1;
         @(posedge clock);
-        reset_L <= 1'b1;
+        reset <= 1'b0;
         @(posedge clock);
         @(posedge clock);
 
@@ -219,3 +245,4 @@ module coinFSM_test();
     end
 
 endmodule : coinFSM_test
+ */
