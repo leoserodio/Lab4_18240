@@ -1,3 +1,5 @@
+
+`default_nettype none
 module FSM
   (input logic clock, reset,
   input logic startGame, enough,
@@ -30,6 +32,7 @@ module FSM
         //state
         next_state = (~startGame | (startGame & ~enough)) ? INIT : CHOOSE_PATTERN;
         //output
+        //cl_z = 1;
         round_clear = (~startGame) ? 1 : 0;
         cl_all = (startGame & enough) ? 1 : 0;
         inc_game = (startGame & enough) ? 1 : 0;
