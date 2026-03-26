@@ -52,9 +52,9 @@ module gameCounter_test();
   logic       inc_round, round_clear;
   logic [3:0] num_rounds, znarly;
   logic [3:0] roundNumber, numGames;
-  logic       enough, space, max_rounds, more_rounds, correct;
+  logic       enough, space, max_rounds, more_rounds, correct, adding;
 
-  gameCounter dut(.clock, .inc_game, .game_clear,
+  gameCounter dut(.clock, .inc_game, .game_clear, .adding
                   .inc_round, .round_clear, .num_rounds,
                   .znarly, .enough, .space,
                   .max_rounds, .more_rounds, .correct,
