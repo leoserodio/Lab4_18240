@@ -219,6 +219,8 @@ module ultimate_tb;
     @(posedge clock);
   endtask
 
+
+
   task automatic pulse_start;
     startGame <= 1'b1;
     @(posedge clock);
@@ -264,6 +266,8 @@ module ultimate_tb;
     pulse_coin(2'b01);
     pulse_coin(2'b01);
     pulse_coin(2'b10);
+    pulse_coin(2'b11);
+    pulse_coin(2'b01);
 
     pulse_start;
 
