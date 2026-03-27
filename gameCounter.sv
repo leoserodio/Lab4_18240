@@ -2,6 +2,7 @@
 
 module gameCounter
   (input  logic        clock,
+   input  logic        master_ready, // added this
    input  logic        adding,
    input  logic        inc_game,
    input  logic        game_clear,
@@ -15,20 +16,20 @@ module gameCounter
    output logic        correct,
    output logic [3:0]  roundNumber, numGames);
 
-   logic [3:0] NumGames;
-   assign numGames = NumGames;
    
+   logic correct_raw;
 
-   // compare NumGames to 7
-   MagComp #(4) SPACE_CHECK (.A(NumGames), .B(4'd7), .AeqB(), .AltB(space), .AgtB());
+
+   // compare numGames to 7
+   MagComp #(4) SPACE_CHECK (.A(numGames), .B(4'd7), .AeqB(), .AltB(space), .AgtB());
 
    // count number of games
-   Counter #(4) GAME_COUNTER (.D(4'd0), .Q(NumGames),
+   Counter #(4) GAME_COUNTER (.D(4'd0), .Q(numGames),
        .en(inc_game), .clear(game_clear), .load(1'b0),
        .up(adding), .clock(clock));
 
-   // compare NumGames to 0
-   MagComp #(4) ENOUGH_CHECK (.A(NumGames), .B(4'd0),
+   // compare numGames to 0
+   MagComp #(4) ENOUGH_CHECK (.A(numGames), .B(4'd0),
        .AeqB(), .AltB(), .AgtB(enough));
 
    Counter #(4) ROUND_COUNTER (.D(4'd0), .Q(roundNumber),
@@ -40,106 +41,118 @@ module gameCounter
        .AeqB(max_rounds), .AltB(more_rounds), .AgtB());
 
    // check if znarly is 4
-   Comparator #(4) WIN_CHECK (.A(znarly), .B(4'd4), .AeqB(correct));
+   Comparator #(4) WIN_CHECK (.A(znarly), .B(4'd4), .AeqB(correct_raw));
+   assign correct = correct_raw & master_ready; // added this
 
 endmodule : gameCounter
 
 
-/*
-module gameCounter_test();
+// ****************************  gamecounter testbench  ****************************** \\
 
-  logic       clock, inc_game, game_clear;
-  logic       inc_round, round_clear;
-  logic [3:0] num_rounds, znarly;
+module gameCounter_test;
+
+  logic clock, master_ready, adding;
+  logic inc_game, game_clear;
+  logic inc_round, round_clear;
+  logic [3:0] znarly;
+
+  logic enough, space, max_rounds;
+  logic more_rounds, correct;
   logic [3:0] roundNumber, numGames;
-  logic       enough, space, max_rounds, more_rounds, correct, adding;
 
-  gameCounter dut(.clock, .inc_game, .game_clear, .adding
-                  .inc_round, .round_clear, .num_rounds,
-                  .znarly, .enough, .space,
-                  .max_rounds, .more_rounds, .correct,
-                  .roundNumber, .numGames);
+  gameCounter dut(
+    .clock, .master_ready, .adding, .inc_game, .game_clear,
+    .inc_round, .round_clear, .znarly,
+    .enough, .space, .max_rounds,
+    .more_rounds, .correct,
+    .roundNumber, .numGames
+  );
 
+  initial clock = 0;
   always #5 clock = ~clock;
 
   initial begin
-    clock       = 1'b0;
-    inc_game    = 1'b0;
-    game_clear  = 1'b0;
-    inc_round   = 1'b0;
-    round_clear = 1'b0;
-    num_rounds  = 4'd8;
-    znarly      = 4'd0;
+    $monitor($time,,
+      "ng=%0d rn=%0d en=%b sp=%b more=%b max=%b cor=%b",
+      numGames, roundNumber, enough, space,
+      more_rounds, max_rounds, correct
+    );
 
-    game_clear  = 1'b1;
-    round_clear = 1'b1;
-    @(posedge clock); #1;
-    game_clear  = 1'b0;
-    round_clear = 1'b0;
-    #1;
+    master_ready = 0;
+    adding       = 1;
+    inc_game     = 0;
+    game_clear   = 1;
+    inc_round    = 0;
+    round_clear  = 1;
+    znarly       = 0;
 
-    $display("NumGames=%0d   enough=%0b space=%0b", numGames, enough, space);
+    @(posedge clock);
+    game_clear  = 0;
+    round_clear = 0;
 
-    inc_game = 1'b1;
-    @(posedge clock); #1;
-    inc_game = 1'b0;
-    #1;
-    $display("NumGames=%0d   enough=%0b space=%0b", numGames, enough, space);
+    @(posedge clock);
+    $display("should be: ng=0 en=0 sp=1");
 
-    repeat (6) begin
-      inc_game = 1'b1;
-      @(posedge clock); #1;
-      inc_game = 1'b0;
-      #1;
-    end
-    $display("NumGames=%0d   enough=%0b space=%0b", numGames, enough, space);
-
-    game_clear = 1'b1;
-    @(posedge clock); #1;
-    game_clear = 1'b0;
-    #1;
-    $display("After clear NumGames=%0d   enough=%0b space=%0b", numGames, enough, space);
-
-    $display("Round=%0d    more_rounds=%0b max_rounds=%0b",
-             roundNumber, more_rounds, max_rounds);
-
+    // count up to 7
     repeat (7) begin
-      inc_round = 1'b1;
-      @(posedge clock); #1;
-      inc_round = 1'b0;
-      #1;
+      @(negedge clock) inc_game = 1; adding = 1; #1;
+      @(posedge clock);
+      @(negedge clock) inc_game = 0; #1;
+      @(posedge clock);
     end
-    $display("Round=%0d    more_rounds=%0b max_rounds=%0b",
-             roundNumber, more_rounds, max_rounds);
 
-    inc_round = 1'b1;
-    @(posedge clock); #1;
-    inc_round = 1'b0;
-    #1;
-    $display("Round=%0d    more_rounds=%0b max_rounds=%0b",
-             roundNumber, more_rounds, max_rounds);
+    // count down twice
+    repeat (2) begin
+      @(negedge clock) inc_game = 1; adding = 0; #1;
+      @(posedge clock);
+      @(negedge clock) inc_game = 0; #1;
+      @(posedge clock);
+    end
 
-    round_clear = 1'b1;
-    @(posedge clock); #1;
-    round_clear = 1'b0;
-    #1;
-    $display("Round=%0d    more_rounds=%0b max_rounds=%0b",
-             roundNumber, more_rounds, max_rounds);
+    // clear games
+    @(negedge clock) game_clear = 1; #1;
+    @(posedge clock);
+    @(negedge clock) game_clear = 0; #1;
+    @(posedge clock);
 
-    znarly = 4'd0; #1;
-    $display("znarly=0     correct=%0b", correct);
+    $display("should be: ng=0 en=0 sp=1");
 
-    znarly = 4'd3; #1;
-    $display("znarly=3     correct=%0b", correct);
+    // count rounds to 8
+    repeat (8) begin
+      @(negedge clock) inc_round = 1; #1;
+      @(posedge clock);
+      @(negedge clock) inc_round = 0; #1;
+      @(posedge clock);
+    end
 
-    znarly = 4'd4; #1;
-    $display("znarly=4     correct=%0b", correct);
+    // clear rounds
+    @(negedge clock) round_clear = 1; #1;
+    @(posedge clock);
+    @(negedge clock) round_clear = 0; #1;
+    @(posedge clock);
 
-    znarly = 4'd5; #1;
-    $display("znarly=5     correct=%0b", correct);
+    $display("should be: rn=0 more=1 max=0");
 
-    $finish;
+    // correct logic tests
+    @(negedge clock) znarly = 4'd0; master_ready = 0; #1;
+    @(posedge clock);
+    $display("should be: cor=0");
+
+    @(negedge clock) znarly = 4'd4; master_ready = 1; #1;
+    @(posedge clock);
+    $display("should be: cor=1");
+
+    @(negedge clock) znarly = 4'd3; master_ready = 1; #1;
+    @(posedge clock);
+    $display("should be: cor=0");
+
+    @(negedge clock) znarly = 4'd4; master_ready = 1; #1;
+    @(posedge clock);
+    $display("should be: cor=1");
+
+    #1 $finish;
   end
 
 endmodule : gameCounter_test
-*/
+
+// ***********************  end of gamecounter testbench  ************************* \\
