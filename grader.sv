@@ -4,7 +4,7 @@ module grader
   (input  logic [11:0] guess, masterPattern,
    output logic [3:0]  znarly,
    output logic [3:0]  zood,
-   input  logic GradeIt, cl_z, clock);
+   input  logic cl_z, clock);
 
    // constant masterPattern value
    
@@ -180,83 +180,98 @@ module grader
 endmodule : grader
 
 
-/*
+
 // ****************************  grader testbench  ****************************** \\
-module grader_test();
+
+module grader_test;
+
   logic [11:0] guess;
+  logic [11:0] masterPattern;
   logic [3:0]  znarly;
   logic [3:0]  zood;
-  logic GradeIt, reset, clock;
+  logic        clock;
+  logic        cl_z;
 
-  grader dut(.guess, .znarly, .zood, .GradeIt, .reset, .clock);
+  grader dut(.guess, .masterPattern, .znarly, .zood, .cl_z, .clock);
+
+  initial clock = 0;
+  always #5 clock = ~clock;
 
   initial begin
-    reset   = 1'b0;
-    clock   = 1'b0;
-    GradeIt = 1'b0;
+    $monitor($time,,
+             "cl_z=%b master=%b guess=%b znarly=%0d zood=%0d",
+             cl_z, masterPattern, guess, znarly, zood);
 
-    $display("masterPattern = 001 010 011 100");
-    $display("");
+    masterPattern = 12'b001010011100;
+    guess = 0;
+    cl_z = 1;
 
-    // GradeIt off
-    $display("guess = 001 010 011 100   should be Znarly = 0 Zood = 0");
-    guess = 12'b001010011100; GradeIt = 1'b0;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    #10 cl_z = 0;
 
-    // exact match
-    $display("guess = 001 010 011 100   should be Znarly = 4 Zood = 0");
-    guess = 12'b001010011100; GradeIt = 1'b1;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    @(negedge clock) guess = 12'b001010011100; #1; // exact
+    @(posedge clock);
 
-    // all Zood, no Znarly
-    $display("guess = 010 001 100 011   should be Znarly = 0 Zood = 4");
-    guess = 12'b010001100011; GradeIt = 1'b1;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    @(negedge clock) guess = 12'b010001100011; #1; // all wrong place
+    @(posedge clock);
 
-    // 2 Znarly, 2 Zood
-    $display("guess = 001 010 100 011   should be Znarly = 2 Zood = 2");
-    guess = 12'b001010100011; GradeIt = 1'b1;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    @(negedge clock) guess = 12'b001010100011; #1; // 2/2 split
+    @(posedge clock);
 
-    // 1 Znarly, 2 Zood, 1 wrong
-    $display("guess = 001 100 010 110   should be Znarly = 1 Zood = 2");
-    guess = 12'b001100010110; GradeIt = 1'b1;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    @(negedge clock) guess = 12'b001100010110; #1; // mixed
+    @(posedge clock);
 
-    // duplicate in guess, should not overcount Zood
-    $display("guess = 001 001 001 001   should be Znarly = 1 Zood = 0");
-    guess = 12'b001001001001; GradeIt = 1'b1;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    @(negedge clock) guess = 12'b001001001001; #1; // duplicates
+    @(posedge clock);
 
-    // no matches
-    $display("guess = 110 110 110 110   should be Znarly = 0 Zood = 0");
-    guess = 12'b110110110110; GradeIt = 1'b1;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    @(negedge clock) guess = 12'b110110110110; #1; // no match
+    @(posedge clock);
 
-    // GradeIt off again
-    $display("guess = 010 001 100 011   should be Znarly = 0 Zood = 0");
-    guess = 12'b010001100011; GradeIt = 1'b0;
-    #10;
-    $display("got   Znarly = %0d Zood = %0d", znarly, zood);
-    $display("");
+    @(negedge clock) guess = 12'b010010010010; #1; // repeat symbol
+    @(posedge clock);
 
-    $finish;
+    @(negedge clock) guess = 12'b100011010001; #1; // reverse-ish
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b001011011100; #1; // 3 correct positions
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b000010011100; #1; // 3 correct + 1 off
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b001111011100; #1; // 3 correct + junk
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b011010001100; #1; // shuffled
+    @(posedge clock);
+
+    @(negedge clock) cl_z = 1; #1; // clear
+    @(posedge clock);
+
+    @(negedge clock) cl_z = 0; guess = 12'b001010011100; #1;
+    @(posedge clock);
+
+    @(negedge clock) masterPattern = 12'b101110001011;
+                     guess         = 12'b101110001011; #1; // exact new
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b110101011001; #1;
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b101110011000; #1;
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b011001110101; #1;
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b111111111111; #1; // all same
+    @(posedge clock);
+
+    @(negedge clock) guess = 12'b000000000000; #1; // all zero
+    @(posedge clock);
+
+    #1 $finish;
   end
+
 endmodule : grader_test
 
 // ***********************  end of grader testbench  ************************* \\
-*/
