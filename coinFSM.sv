@@ -1,8 +1,9 @@
-`default_nettype none
+//`default_nettype none
 
 module coinFSM
     (output logic [3:0] credit,
-     output logic       inc_game,
+     output logic       inc_game, game_clear,
+     input  logic       space, // new line added
      output logic       adding,
      input  logic [1:0] cv,
      input  logic       coinInserted,
@@ -14,8 +15,10 @@ module coinFSM
         if (reset) begin
             currState <= START;
             prevState <= START;
+            game_clear <= 1;
         end
         else begin
+            game_clear <= 0;
             prevState <= currState;
             currState <= nextState;
     end
@@ -54,32 +57,32 @@ end
             end
             PERF_DROP: begin
                 if (coinInserted) begin
-                    if      (cv == 2'b01) nextState = ONE; 
-                    else if (cv == 2'b10) nextState = THREE;  
+                    if      (cv == 2'b01) nextState = ONE;
+                    else if (cv == 2'b10) nextState = THREE;
                     else if (cv == 2'b11) nextState = DROP_ONE;
                     else                  nextState = START;
-                end 
+                end
             end
             DROP_ONE: begin
                 if (coinInserted) begin
-                    if      (cv == 2'b01) nextState = TWO; 
-                    else if (cv == 2'b10) nextState = PERF_DROP;  
+                    if      (cv == 2'b01) nextState = TWO;
+                    else if (cv == 2'b10) nextState = PERF_DROP;
                     else if (cv == 2'b11) nextState = DROP_TWO;
                     else                  nextState = ONE;
-                end 
+                end
             end
             DROP_TWO:  begin
                 if (coinInserted) begin
-                    if      (cv == 2'b01) nextState = THREE; 
-                    else if (cv == 2'b10) nextState = DROP_ONE;  
+                    if      (cv == 2'b01) nextState = THREE;
+                    else if (cv == 2'b10) nextState = DROP_ONE;
                     else if (cv == 2'b11) nextState = DROP_THREE;
                     else                  nextState = TWO;
                 end
             end
             DROP_THREE: begin
                 if (coinInserted) begin
-                    if      (cv == 2'b01) nextState = PERF_DROP; 
-                    else if (cv == 2'b10) nextState = DROP_TWO;  
+                    if      (cv == 2'b01) nextState = PERF_DROP;
+                    else if (cv == 2'b10) nextState = DROP_TWO;
                     else if (cv == 2'b11) nextState = PERF_DROP;
                     else                  nextState = THREE;
                 end
@@ -101,22 +104,22 @@ end
 
         PERF_DROP: begin
             credit = 4'd0;
-            if (prevState != PERF_DROP) inc_game = 1'b1;
+            if ((prevState != PERF_DROP) && space) inc_game = 1'b1;
         end
 
         DROP_ONE: begin
             credit = 4'd1;
-            if (prevState != DROP_ONE) inc_game = 1'b1;
+            if ((prevState != DROP_ONE) && space) inc_game = 1'b1;
         end
 
         DROP_TWO: begin
             credit = 4'd2;
-            if (prevState != DROP_TWO) inc_game = 1'b1;
+            if ((prevState != DROP_TWO) && space) inc_game = 1'b1;
         end
 
         DROP_THREE: begin
             credit = 4'd3;
-            if (prevState != DROP_THREE) inc_game = 1'b1;
+            if ((prevState != DROP_THREE) && space) inc_game = 1'b1;
         end
 
         default: begin
