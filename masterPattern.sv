@@ -1,8 +1,7 @@
-`default_nettype none
+//`default_nettype none
 module Select_Pattern
   (input logic [1:0] ShapeLocation,
   input logic [2:0] LoadShape,
-  input logic [11:0] guess,
   input logic cl_all,
   input logic LoadShapeNow, clock, reset,
   output logic master_ready,
@@ -46,4 +45,20 @@ assign masterPattern = {mp3, mp2, mp1, mp0};
 //all shapes are loaded
 assign master_ready = ~(check3 | check2 | check1 | check0);
 
+
+// NEW CODE ADDED
+/*
+logic loaded3, loaded2, loaded1, loaded0;
+always_ff @(posedge clock) begin
+    if (reset | cl_all) {loaded3, loaded2, loaded1, loaded0} <= 4'b0;
+    else begin
+        if (mp3_en) loaded3 <= 1;
+        if (mp2_en) loaded2 <= 1;
+        if (mp1_en) loaded1 <= 1;
+        if (mp0_en) loaded0 <= 1;
+    end
+end
+assign master_ready = loaded3 & loaded2 & loaded1 & loaded0;
+*/
+// NEW CODE ENDS HERE
 endmodule: Select_Pattern
