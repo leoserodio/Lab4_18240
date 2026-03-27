@@ -6,7 +6,6 @@ module grader
    output logic [3:0]  zood,
    input  logic cl_z, clock);
 
-   // constant masterPattern value
    
 
    // Comparator C (A, B, AeqB)                  
